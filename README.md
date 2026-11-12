@@ -19,15 +19,16 @@ outside providers (Midtrans, Google, email) are not here.
 ## Using it
 
 A service requires a tagged version (`require github.com/palakrama/palakrama-go v0.1.0`).
-The repository is private:
+The repository is public (it holds no keys, URLs, or business rules), so CI and
+`go mod tidy` download it like any other module:
 
 - **Locally**, `go.work` at the workspace root (`Projects/`, outside every
   repository) uses this folder and every service, and replaces the required
   version with this folder, so `./dev.sh` and `go build` see local changes at
   once. When a service requires a new version, update the version in the
   `replace` line too.
-- **CI** of each service sets `GOPRIVATE=github.com/palakrama/*` and reads the
-  module with the `REPOSITORY_READ_TOKEN` secret.
+- **CI** of each service needs nothing extra. Keep it that way: never put a
+  key, URL, customer data, or business rule in this public module.
 
 The workspace file, in case it is lost:
 
@@ -55,7 +56,7 @@ replace github.com/palakrama/palakrama-go v0.1.0 => ./palakrama-go
 1. Change and test here (`go vet ./... && go test ./...`), add `docs/CHANGELOG/<version>.md`.
 2. Commit, tag (`git tag v0.2.0`), and push the tag.
 3. In each service: `go mod edit -require=github.com/palakrama/palakrama-go@v0.2.0`, then
-   `GOWORK=off go mod tidy` (fills `go.sum`; needs read access to the repository), and
+   `GOWORK=off go mod tidy` (fills `go.sum`), and
    bump the `replace` version in `go.work`.
 
 Keep the API stable: services move to a new version one by one.
